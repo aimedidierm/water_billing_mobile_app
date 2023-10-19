@@ -1,7 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.water_blling">
+    package="com.example.water_billing">
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    
    <application
-        android:label="water_blling"
+        android:label="Iyishyurire Amazi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

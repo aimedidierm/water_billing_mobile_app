@@ -6,6 +6,11 @@ const baseURL = 'https://waterbilling.itaratec.com/api';
 const loginURL = '$baseURL/login';
 const registerURL = '$baseURL/register';
 const profileURL = '$baseURL/profile';
+const adminPaymentsURL = '$baseURL/admin/billing';
+const clientPaymentsURL = '$baseURL/client/billing';
+const usersURL = '$baseURL/admin/users';
+const metersURL = '$baseURL/admin/meters';
+const readingsURL = '$baseURL/client/readings';
 
 // Application colors
 

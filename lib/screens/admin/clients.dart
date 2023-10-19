@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:water_billing/constants.dart';
+import 'package:water_billing/services/user.dart';
+import 'package:http/http.dart' as http;
 
 class Clients extends StatefulWidget {
   const Clients({super.key});
@@ -9,51 +13,36 @@ class Clients extends StatefulWidget {
 }
 
 class _ClientsState extends State<Clients> {
-  bool _loading = false;
-  List<Map<String, dynamic>> _allPackages = [
-    {
-      "name": "Alice Smith",
-      "email": "alice@example.com",
-      "phone": "0712345678"
-    },
-    {"name": "Bob Johnson", "email": "bob@example.com", "phone": "0798765432"},
-    {
-      "name": "Emily Brown",
-      "email": "emily@example.com",
-      "phone": "0723456789"
-    },
-    {
-      "name": "David Wilson",
-      "email": "david@example.com",
-      "phone": "0754321098"
-    },
-    {
-      "name": "Sarah Davis",
-      "email": "sarah@example.com",
-      "phone": "0732109876"
-    },
-    {
-      "name": "Michael Clark",
-      "email": "michael@example.com",
-      "phone": "0787654321"
-    },
-    {
-      "name": "Olivia Turner",
-      "email": "olivia@example.com",
-      "phone": "0765432109"
-    },
-    {
-      "name": "William Harris",
-      "email": "william@example.com",
-      "phone": "0743210987"
-    },
-    {
-      "name": "Sophia White",
-      "email": "sophia@example.com",
-      "phone": "0776543210"
-    },
-    {"name": "James Lee", "email": "james@example.com", "phone": "0709876543"}
-  ];
+  bool _loading = true;
+  List<Map<String, dynamic>> _allClients = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    String token = await getToken();
+    final response = await http.get(Uri.parse(usersURL), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    if (response.statusCode == 200) {
+      final decodedResponse = json.decode(response.body);
+      final List<Map<String, dynamic>> allClients =
+          List<Map<String, dynamic>>.from(decodedResponse['users']);
+
+      setState(() {
+        _allClients = allClients;
+        _loading = false;
+      });
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,16 +58,16 @@ class _ClientsState extends State<Clients> {
                 children: [
                   Expanded(
                     child: ListView.builder(
-                      itemCount: _allPackages.length,
+                      itemCount: _allClients.length,
                       itemBuilder: (context, index) => Card(
-                        key: ValueKey(_allPackages[index]["id"]),
+                        key: ValueKey(_allClients[index]["id"]),
                         elevation: 0,
                         margin: const EdgeInsets.symmetric(vertical: 6),
                         child: Column(
                           children: [
                             ListTile(
                               title: Text(
-                                _allPackages[index]['name'].toString(),
+                                _allClients[index]['name'].toString(),
                                 textAlign: TextAlign.justify,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
@@ -90,14 +79,14 @@ class _ClientsState extends State<Clients> {
                                     children: [
                                       const Text('Imeyeli: '),
                                       Text(
-                                        _allPackages[index]["email"].toString(),
+                                        _allClients[index]["email"].toString(),
                                       ),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       const Text('Telephoni: '),
-                                      Text(_allPackages[index]['phone']
+                                      Text(_allClients[index]['phone']
                                           .toString()),
                                     ],
                                   ),

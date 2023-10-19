@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:water_billing/constants.dart';
+import 'package:water_billing/screens/admin/add_meter.dart';
 import 'package:water_billing/screens/admin/clients.dart';
 import 'package:water_billing/screens/admin/meters.dart';
 import 'package:water_billing/screens/admin/payments.dart';
@@ -238,6 +239,18 @@ class _AdminHomeState extends State<AdminHome> {
               },
             ),
           ),
+        ),
+      ),
+      floatingActionButton: Visibility(
+        visible: _selectedIndex == 2,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddMeter()),
+            );
+          },
+          child: const Icon(Icons.add),
         ),
       ),
     );

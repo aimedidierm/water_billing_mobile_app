@@ -1,5 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:water_billing/constants.dart';
+import 'package:http/http.dart' as http;
+import 'package:water_billing/constants.dart';
+import 'package:water_billing/screens/admin/meter_details.dart';
+import 'package:water_billing/services/user.dart';
 
 class Meters extends StatefulWidget {
   const Meters({super.key});
@@ -9,39 +15,36 @@ class Meters extends StatefulWidget {
 }
 
 class _MetersState extends State<Meters> {
-  bool _loading = false;
-  List<Map<String, dynamic>> _allPackages = [
-    {"meter_id": "10293", "client": "Alice Smith", "address": "Nairobi, Kenya"},
-    {
-      "meter_id": "56789",
-      "client": "Bob Johnson",
-      "address": "Kampala, Uganda"
-    },
-    {"meter_id": "98765", "client": "Emily Brown", "address": "Lusaka, Zambia"},
-    {"meter_id": "12345", "client": "David Wilson", "address": "Accra, Ghana"},
-    {"meter_id": "54321", "client": "Sarah Davis", "address": "Dakar, Senegal"},
-    {
-      "meter_id": "87654",
-      "client": "Michael Clark",
-      "address": "Addis Ababa, Ethiopia"
-    },
-    {
-      "meter_id": "34567",
-      "client": "Olivia Turner",
-      "address": "Lagos, Nigeria"
-    },
-    {
-      "meter_id": "45678",
-      "client": "William Harris",
-      "address": "Cairo, Egypt"
-    },
-    {
-      "meter_id": "23456",
-      "client": "Sophia White",
-      "address": "Casablanca, Morocco"
-    },
-    {"meter_id": "78901", "client": "James Lee", "address": "Tunis, Tunisia"}
-  ];
+  bool _loading = true;
+  List<Map<String, dynamic>> _allMeters = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    String token = await getToken();
+    final response = await http.get(Uri.parse(metersURL), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    if (response.statusCode == 200) {
+      final decodedResponse = json.decode(response.body);
+      final List<Map<String, dynamic>> allMeters =
+          List<Map<String, dynamic>>.from(decodedResponse);
+
+      setState(() {
+        _allMeters = allMeters;
+        _loading = false;
+      });
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,9 +60,9 @@ class _MetersState extends State<Meters> {
                 children: [
                   Expanded(
                     child: ListView.builder(
-                      itemCount: _allPackages.length,
+                      itemCount: _allMeters.length,
                       itemBuilder: (context, index) => Card(
-                        key: ValueKey(_allPackages[index]["id"]),
+                        key: ValueKey(_allMeters[index]["id"]),
                         elevation: 0,
                         margin: const EdgeInsets.symmetric(vertical: 6),
                         child: Column(
@@ -67,14 +70,14 @@ class _MetersState extends State<Meters> {
                             ListTile(
                               title: Row(
                                 children: [
-                                  Text(
+                                  const Text(
                                     "ID: ",
                                     textAlign: TextAlign.justify,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    _allPackages[index]['meter_id'].toString(),
+                                    _allMeters[index]['meterId'].toString(),
                                     textAlign: TextAlign.justify,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
@@ -82,22 +85,46 @@ class _MetersState extends State<Meters> {
                                 ],
                               ),
                               contentPadding: const EdgeInsets.all(16),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                    return MeterDetails(
+                                      meterId: _allMeters[index]["meterId"],
+                                      client: _allMeters[index]["client"],
+                                      country: _allMeters[index]["country"],
+                                      province: _allMeters[index]["province"],
+                                      district: _allMeters[index]["district"],
+                                      sector: _allMeters[index]["sector"],
+                                      cell: _allMeters[index]["cell"],
+                                      village: _allMeters[index]["village"],
+                                    );
+                                  }),
+                                );
+                              },
                               subtitle: Column(
                                 children: [
                                   Row(
                                     children: [
                                       const Text('Umukiriya: '),
                                       Text(
-                                        _allPackages[index]["client"]
-                                            .toString(),
+                                        _allMeters[index]["client"].toString(),
                                       ),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       const Text('Aho abarizwa: '),
-                                      Text(_allPackages[index]['address']
-                                          .toString()),
+                                      Text(
+                                        _allMeters[index]['province']
+                                            .toString(),
+                                      ),
+                                      const Text(
+                                        ',',
+                                      ),
+                                      Text(
+                                        _allMeters[index]['country'].toString(),
+                                      ),
                                     ],
                                   ),
                                 ],

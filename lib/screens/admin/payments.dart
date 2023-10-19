@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:water_billing/constants.dart';
+import 'package:http/http.dart' as http;
+import 'package:water_billing/services/user.dart';
+import 'package:intl/intl.dart';
 
 class Payments extends StatefulWidget {
   const Payments({super.key});
@@ -9,69 +13,36 @@ class Payments extends StatefulWidget {
 }
 
 class _PaymentsState extends State<Payments> {
-  bool _loading = false;
-  List<Map<String, dynamic>> _allPackages = [
-    {
-      "amount": 2000,
-      "meter_id": "1234",
-      "status": "pending",
-      "time": "2023-10-10"
-    },
-    {
-      "amount": 1500,
-      "meter_id": "5678",
-      "status": "completed",
-      "time": "2023-10-12"
-    },
-    {
-      "amount": 1800,
-      "meter_id": "3456",
-      "status": "cancelled",
-      "time": "2023-10-14"
-    },
-    {
-      "amount": 2100,
-      "meter_id": "2345",
-      "status": "completed",
-      "time": "2023-10-13"
-    },
-    {
-      "amount": 2500,
-      "meter_id": "7890",
-      "status": "pending",
-      "time": "2023-10-11"
-    },
-    {
-      "amount": 1700,
-      "meter_id": "4567",
-      "status": "completed",
-      "time": "2023-10-17"
-    },
-    {
-      "amount": 1900,
-      "meter_id": "6543",
-      "status": "pending",
-      "time": "2023-10-19"
-    },
-    {
-      "amount": 2300,
-      "meter_id": "5432",
-      "status": "cancelled",
-      "time": "2023-10-20"
-    },
-    {
-      "amount": 1600,
-      "meter_id": "8765",
-      "status": "completed",
-      "time": "2023-10-16"
-    },
-    {
-      "amount": 2000,
-      "meter_id": "4321",
-      "status": "pending",
-      "time": "2023-10-18"
+  bool _loading = true;
+  List<Map<String, dynamic>> _allPayments = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    String token = await getToken();
+    final response = await http.get(Uri.parse(adminPaymentsURL), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+    if (response.statusCode == 200) {
+      final decodedResponse = json.decode(response.body);
+      final List<Map<String, dynamic>> allPayments =
+          List<Map<String, dynamic>>.from(decodedResponse);
+
+      setState(() {
+        _allPayments = allPayments;
+        _loading = false;
+      });
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
     }
-  ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,9 +58,9 @@ class _PaymentsState extends State<Payments> {
                 children: [
                   Expanded(
                     child: ListView.builder(
-                      itemCount: _allPackages.length,
+                      itemCount: _allPayments.length,
                       itemBuilder: (context, index) => Card(
-                        key: ValueKey(_allPackages[index]["id"]),
+                        key: ValueKey(_allPayments[index]["id"]),
                         elevation: 0,
                         margin: const EdgeInsets.symmetric(vertical: 6),
                         child: Column(
@@ -98,7 +69,7 @@ class _PaymentsState extends State<Payments> {
                               title: Row(
                                 children: [
                                   Text(
-                                    _allPackages[index]['amount'].toString(),
+                                    _allPayments[index]['amount'].toString(),
                                     textAlign: TextAlign.justify,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
@@ -113,7 +84,7 @@ class _PaymentsState extends State<Payments> {
                                     children: [
                                       const Text('Konteri: '),
                                       Text(
-                                        _allPackages[index]["meter_id"]
+                                        _allPayments[index]["meter"]["meterId"]
                                             .toString(),
                                       ),
                                     ],
@@ -121,8 +92,13 @@ class _PaymentsState extends State<Payments> {
                                   Row(
                                     children: [
                                       const Text('Tariki: '),
-                                      Text(_allPackages[index]['time']
-                                          .toString()),
+                                      Text(
+                                        DateFormat('yyyy-MM-dd HH:mm:ss')
+                                            .format(
+                                          DateTime.parse(_allPayments[index]
+                                              ['created_at'] as String),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -131,24 +107,21 @@ class _PaymentsState extends State<Payments> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      // approveTool(
-                                      //     _allPackages[index]['id'].toString());
-                                    },
-                                    child: Container(
-                                      height: 20,
-                                      width: 70,
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Center(
-                                        child: const Text(
-                                          'Pending',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
+                                  Container(
+                                    height: 20,
+                                    width: 70,
+                                    decoration: BoxDecoration(
+                                      color: (_allPayments[index]['status'] ==
+                                              'pending')
+                                          ? Colors.red
+                                          : Colors.green,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        _allPayments[index]['status'],
+                                        style: TextStyle(
+                                          color: Colors.white,
                                         ),
                                       ),
                                     ),

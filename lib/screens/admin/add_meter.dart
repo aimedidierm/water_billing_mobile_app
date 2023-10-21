@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:water_billing/constants.dart';
+import 'package:water_billing/screens/admin/homepage.dart';
+import 'package:water_billing/services/meter.dart';
+
+import '../../models/api_response.dart';
 
 class AddMeter extends StatefulWidget {
   const AddMeter({super.key});
@@ -18,6 +22,40 @@ class _AddMeterState extends State<AddMeter> {
   TextEditingController sector = TextEditingController();
   TextEditingController cell = TextEditingController();
   TextEditingController village = TextEditingController();
+  void registerMeter() async {
+    ApiResponse response = await store(
+      client.text,
+      country.text,
+      province.text,
+      district.text,
+      sector.text,
+      village.text,
+      cell.text,
+    );
+    if (response.error == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Konteri yagiye muri sisiteme'),
+        ),
+      );
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const AdminHome(),
+        ),
+        (route) => false,
+      );
+    } else {
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${response.error}'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,7 +230,10 @@ class _AddMeterState extends State<AddMeter> {
                   TextButton(
                     onPressed: () {
                       if (formkey.currentState!.validate()) {
-                        // registerMeter();
+                        setState(() {
+                          _loading = true;
+                        });
+                        registerMeter();
                       }
                     },
                     style: ButtonStyle(

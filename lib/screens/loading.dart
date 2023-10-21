@@ -21,7 +21,7 @@ class _LoadingState extends State<Loading> {
     if (token == '') {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (context) => Login(),
+          builder: (context) => const Login(),
         ),
         (route) => false,
       );

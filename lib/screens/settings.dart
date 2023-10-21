@@ -49,6 +49,7 @@ class _SettingsState extends State<Settings> {
     ApiResponse response = await updateDetails(
       name.text,
       email.text,
+      phone.text,
       password.text,
     );
     if (response.error == null) {

@@ -69,6 +69,7 @@ Future<ApiResponse> getUserDetails() async {
 Future<ApiResponse> updateDetails(
   String? name,
   String? email,
+  String? phone,
   String? password,
 ) async {
   ApiResponse apiResponse = ApiResponse();
@@ -80,6 +81,7 @@ Future<ApiResponse> updateDetails(
     }, body: {
       'name': name,
       'email': email,
+      'phone': phone,
       'password': password
     });
     print(response.body);
@@ -119,7 +121,7 @@ Future<ApiResponse> register(
     final response = await http.post(Uri.parse(registerURL), headers: {
       'Accept': 'application/json'
     }, body: {
-      'names': name,
+      'name': name,
       'email': email,
       'password': password,
       'phone': phone,
@@ -130,7 +132,7 @@ Future<ApiResponse> register(
         break;
       case 422:
         final errors = jsonDecode(response.body)['errors'];
-        apiResponse.error = errors[errors.keys.element(0)][0];
+        apiResponse.error = errors;
         break;
       case 403:
         apiResponse.error = jsonDecode(response.body)['message'];
@@ -139,10 +141,12 @@ Future<ApiResponse> register(
         apiResponse.error = serverError;
         break;
       default:
+        print(response.body);
         apiResponse.error = somethingWentWrong;
         break;
     }
   } catch (e) {
+    print(e);
     apiResponse.error = serverError;
   }
 

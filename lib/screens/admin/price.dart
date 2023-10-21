@@ -10,12 +10,11 @@ class Price extends StatefulWidget {
 
 class _PriceState extends State<Price> {
   bool _loading = false;
-  List<Map<String, dynamic>> _allPackages = [
-    {"price": 1500, "volume": "0-5"},
-    {"price": 2200, "volume": "5-10"},
-    {"price": 1800, "volume": "10-15"},
-    {"price": 2100, "volume": "15-20"},
-    {"price": 2500, "volume": ">20"},
+  final List<Map<String, dynamic>> _allPackages = [
+    {"price": 402, "volume": "0-5"},
+    {"price": 852, "volume": "6-20"},
+    {"price": 990, "volume": "20-50"},
+    {"price": 1030, "volume": ">50"},
   ];
   @override
   Widget build(BuildContext context) {

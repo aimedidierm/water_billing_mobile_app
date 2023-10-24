@@ -52,3 +52,43 @@ Future<ApiResponse> store(
 
   return apiResponse;
 }
+
+Future<ApiResponse> readingStore(
+  int readings,
+  String meterId,
+) async {
+  String token = await getToken();
+  ApiResponse apiResponse = ApiResponse();
+  try {
+    final response = await http.post(Uri.parse(readingsURL), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    }, body: {
+      'readings': 'readings',
+      'meter_id': 'meterId',
+    });
+
+    switch (response.statusCode) {
+      case 200:
+        // apiResponse.data = 'Kohereza imibare byakunze';
+        break;
+      case 422:
+        print(response.body);
+        final errors = jsonDecode(response.body)['errors'][0];
+        apiResponse.error = errors;
+        break;
+      case 403:
+        apiResponse.error = jsonDecode(response.body)['errors'];
+        break;
+      default:
+        print(response.body);
+        // apiResponse.error = somethingWentWrong;
+        break;
+    }
+  } catch (e) {
+    print(e);
+    apiResponse.error = serverError;
+  }
+
+  return apiResponse;
+}

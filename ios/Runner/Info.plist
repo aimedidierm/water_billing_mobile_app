@@ -49,5 +49,10 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
     <string>Iyi programu ikenera camera ngo ibone imibare ya konteri.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

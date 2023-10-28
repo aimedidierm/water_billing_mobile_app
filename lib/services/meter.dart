@@ -42,11 +42,49 @@ Future<ApiResponse> store(
         apiResponse.error = jsonDecode(response.body)['message'];
         break;
       default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
+  } catch (e) {
+    apiResponse.error = serverError;
+  }
+
+  return apiResponse;
+}
+
+Future<ApiResponse> sendingPayment(
+  int billingId,
+  String phone,
+) async {
+  String token = await getToken();
+  ApiResponse apiResponse = ApiResponse();
+  try {
+    final response = await http.post(Uri.parse(clientPaymentsURL), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    }, body: {
+      'billing_id': billingId.toString(),
+      'phone': phone,
+    });
+
+    switch (response.statusCode) {
+      case 200:
+        apiResponse.data = 'Kuyandika byakunze';
+        break;
+      case 422:
+        final errors = jsonDecode(response.body)['errors'][0];
+        apiResponse.error = errors;
+        break;
+      case 403:
+        apiResponse.error = jsonDecode(response.body)['message'];
+        break;
+      default:
         print(response.body);
         apiResponse.error = somethingWentWrong;
         break;
     }
   } catch (e) {
+    print(e);
     apiResponse.error = serverError;
   }
 
@@ -64,13 +102,13 @@ Future<ApiResponse> readingStore(
       'Accept': 'application/json',
       'Authorization': 'Bearer $token'
     }, body: {
-      'readings': 'readings',
-      'meter_id': 'meterId',
+      'readings': readings.toString(),
+      'meter_id': meterId,
     });
 
     switch (response.statusCode) {
       case 200:
-        // apiResponse.data = 'Kohereza imibare byakunze';
+        apiResponse.data = 'Kohereza imibare byakunze';
         break;
       case 422:
         print(response.body);
@@ -81,12 +119,10 @@ Future<ApiResponse> readingStore(
         apiResponse.error = jsonDecode(response.body)['errors'];
         break;
       default:
-        print(response.body);
-        // apiResponse.error = somethingWentWrong;
+        apiResponse.error = somethingWentWrong;
         break;
     }
   } catch (e) {
-    print(e);
     apiResponse.error = serverError;
   }
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:water_billing/constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:water_billing/screens/client/pay.dart';
 import 'package:water_billing/services/user.dart';
 import 'package:intl/intl.dart';
 
@@ -78,6 +79,21 @@ class _PaymentsState extends State<Payments> {
                                 ],
                               ),
                               contentPadding: const EdgeInsets.all(16),
+                              onTap: () {
+                                (_allPayments[index]["status"] == 'pending')
+                                    ? Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) {
+                                          return Pay(
+                                            billingId: _allPayments[index]
+                                                ["id"],
+                                            amount: _allPayments[index]
+                                                ["amount"],
+                                          );
+                                        }),
+                                      )
+                                    : Null;
+                              },
                               subtitle: Column(
                                 children: [
                                   Row(

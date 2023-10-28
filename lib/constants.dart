@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 //Endpoints
-const baseURL = 'https://waterbilling.itaratec.com/api';
-// const baseURL = 'http://192.168.43.83:8000/api';
+const baseURL = 'http://192.168.43.83:8000/api';
 const loginURL = '$baseURL/login';
 const registerURL = '$baseURL/register';
 const profileURL = '$baseURL/profile';

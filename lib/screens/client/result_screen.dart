@@ -25,12 +25,12 @@ class _ResultScreenState extends State<ResultScreen> {
           content: Text('Kwishyura byasabwe'),
         ),
       );
-      // Navigator.of(context).pushAndRemoveUntil(
-      //   MaterialPageRoute(
-      //     builder: (context) => const Home(),
-      //   ),
-      //   (route) => false,
-      // );
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => const Home(),
+        ),
+        (route) => false,
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
